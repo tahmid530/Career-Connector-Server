@@ -27,6 +27,7 @@ async function run() {
 
         const jobsCollection = client.db('jobsDB').collection('jobs');
         const myJobsCollection = client.db('jobsDB').collection('my jobs');
+      
 
         // Data read
         app.get('/my_jobs', async (req, res) => {
@@ -39,6 +40,14 @@ async function run() {
         app.get('/jobs', async (req, res) => {
             const cursor = jobsCollection.find();
             const result = await cursor.toArray();
+            res.send(result);
+        })
+
+         // Read Jobs data using id
+         app.get('/jobs/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id:  (id) }
+            const result = await jobsCollection.findOne(query);
             res.send(result);
         })
 
@@ -104,6 +113,23 @@ async function run() {
 
             const result = await myJobsCollection.updateOne(filter, myJobs, options);
             console.log(result);
+            res.send(result);
+        })
+
+          // Apply data read
+          app.get('/apply', async (req, res) => {
+            const cursor = applyCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        const applyCollection = client.db('jobsDB').collection('apply');
+
+        // Apply data create
+        app.post('/apply', async (req, res) => {
+            const newApply = req.body;
+            console.log(newApply);
+            const result = await applyCollection.insertOne(newApply);
             res.send(result);
         })
 
