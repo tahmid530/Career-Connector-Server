@@ -28,12 +28,26 @@ async function run() {
         const jobsCollection = client.db('jobsDB').collection('jobs');
 
         // Data read
+        app.get('/my_jobs', async (req, res) => {
+            const cursor = jobsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        // Data read
         app.get('/jobs', async (req, res) => {
             const cursor = jobsCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
 
+
+         // Data create
+         app.post('/my_jobs', async (req, res) => {
+            const newJobs = req.body;
+            const result = await jobsCollection.insertOne(newJobs);
+            res.send(result);
+        })
 
          // Data create
          app.post('/jobs', async (req, res) => {
