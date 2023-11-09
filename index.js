@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -14,11 +14,11 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
     serverApi: {
-      version: ServerApiVersion.v1,
-      strict: true,
-      deprecationErrors: true,
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
     }
-  });
+});
 
 async function run() {
     try {
@@ -26,10 +26,11 @@ async function run() {
         // await client.connect();
 
         const jobsCollection = client.db('jobsDB').collection('jobs');
+        const myJobsCollection = client.db('jobsDB').collection('my jobs');
 
         // Data read
         app.get('/my_jobs', async (req, res) => {
-            const cursor = jobsCollection.find();
+            const cursor = myJobsCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
@@ -41,18 +42,68 @@ async function run() {
             res.send(result);
         })
 
-
-         // Data create
-         app.post('/my_jobs', async (req, res) => {
+        // Data create
+        app.post('/jobs', async (req, res) => {
             const newJobs = req.body;
             const result = await jobsCollection.insertOne(newJobs);
             res.send(result);
         })
 
-         // Data create
-         app.post('/jobs', async (req, res) => {
+        // My Jobs data read
+        app.get('/my_jobs', async (req, res) => {
+            const cursor = myJobsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        // My Jobs data create
+        app.post('/my_jobs', async (req, res) => {
             const newJobs = req.body;
-            const result = await jobsCollection.insertOne(newJobs);
+            const result = await myJobsCollection.insertOne(newJobs);
+            res.send(result);
+        })
+
+        // My Jobs data delete
+        app.delete('/my_jobs/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { _id: new ObjectId (id) }
+            const result = await myJobsCollection.deleteOne(query);
+            console.log(result);
+            res.send(result);
+        })
+
+         // Read My Jobs data using id
+         app.get('/my_jobs/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId (id) }
+            const result = await myJobsCollection.findOne(query);
+            res.send(result);
+        })
+
+         // Update My Jobs data using id
+         app.put('/my_jobs/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const filter = { _id: new ObjectId (id) }
+            console.log(filter);
+            const options = { upsert: true };
+            const updatedJobs = req.body;
+
+            const myJobs = {
+                $set: {
+                    name: updatedJobs.name,
+                    deadline: updatedJobs.deadline,
+                    category: updatedJobs.category,
+                    salary: updatedJobs.salary,
+                    description: updatedJobs.description,
+                    posting: updatedJobs.posting,
+                    image: updatedJobs.image
+                }
+            }
+
+            const result = await myJobsCollection.updateOne(filter, myJobs, options);
+            console.log(result);
             res.send(result);
         })
 
@@ -67,7 +118,7 @@ async function run() {
         // await client.close();
     }
 }
-run( ).catch(console.dir);
+run().catch(console.dir);
 
 
 
