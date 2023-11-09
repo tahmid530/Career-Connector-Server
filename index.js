@@ -25,14 +25,8 @@ async function run() {
 
         const jobsCollection = client.db('jobsDB').collection('jobs');
         const myJobsCollection = client.db('jobsDB').collection('my jobs');
-      
+        const applyCollection = client.db('jobsDB').collection('apply');
 
-        // Data read
-        app.get('/my_jobs', async (req, res) => {
-            const cursor = myJobsCollection.find();
-            const result = await cursor.toArray();
-            res.send(result);
-        })
 
         // Data read
         app.get('/jobs', async (req, res) => {
@@ -41,10 +35,10 @@ async function run() {
             res.send(result);
         })
 
-         // Read Jobs data using id
-         app.get('/jobs/:id', async (req, res) => {
+        // Read Jobs data using id
+        app.get('/jobs/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id:  (id) }
+            const query = { _id: (id) }
             const result = await jobsCollection.findOne(query);
             res.send(result);
         })
@@ -55,6 +49,13 @@ async function run() {
             const result = await jobsCollection.insertOne(newJobs);
             res.send(result);
         })
+
+        // // Data read
+        // app.get('/my_jobs', async (req, res) => {
+        //     const cursor = myJobsCollection.find();
+        //     const result = await cursor.toArray();
+        //     res.send(result);
+        // })
 
         // My Jobs data read
         app.get('/my_jobs', async (req, res) => {
@@ -74,25 +75,25 @@ async function run() {
         app.delete('/my_jobs/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id);
-            const query = { _id: new ObjectId (id) }
+            const query = { _id: new ObjectId(id) }
             const result = await myJobsCollection.deleteOne(query);
             console.log(result);
             res.send(result);
         })
 
-         // Read My Jobs data using id
-         app.get('/my_jobs/:id', async (req, res) => {
+        // Read My Jobs data using id
+        app.get('/my_jobs/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: new ObjectId (id) }
+            const query = { _id: new ObjectId(id) }
             const result = await myJobsCollection.findOne(query);
             res.send(result);
         })
 
-         // Update My Jobs data using id
-         app.put('/my_jobs/:id', async (req, res) => {
+        // Update My Jobs data using id
+        app.put('/my_jobs/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id);
-            const filter = { _id: new ObjectId (id) }
+            const filter = { _id: new ObjectId(id) }
             console.log(filter);
             const options = { upsert: true };
             const updatedJobs = req.body;
@@ -114,14 +115,13 @@ async function run() {
             res.send(result);
         })
 
-          // Apply data read
-          app.get('/apply', async (req, res) => {
+        // Apply data read
+        app.get('/apply', async (req, res) => {
             const cursor = applyCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
 
-        const applyCollection = client.db('jobsDB').collection('apply');
 
         // Apply data create
         app.post('/apply', async (req, res) => {
