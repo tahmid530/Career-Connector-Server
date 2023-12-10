@@ -6,7 +6,14 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors());
+const corsOptions = {
+    origin: ["http://localhost:5173",
+        "https://assignment-11-cd7b0.web.app"],
+    credentials: true,
+    optionSuccessStatus: 200,
+}
+app.use(cors(corsOptions))
+
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rqx97wq.mongodb.net/?retryWrites=true&w=majority`;
@@ -24,8 +31,6 @@ async function run() {
     try {
 
         const jobsCollection = client.db('jobsDB').collection('jobs');
-        const myJobsCollection = client.db('jobsDB').collection('my jobs');
-        const applyCollection = client.db('jobsDB').collection('apply');
 
 
         // Data read
@@ -50,12 +55,9 @@ async function run() {
             res.send(result);
         })
 
-        // // Data read
-        // app.get('/my_jobs', async (req, res) => {
-        //     const cursor = myJobsCollection.find();
-        //     const result = await cursor.toArray();
-        //     res.send(result);
-        // })
+
+        const myJobsCollection = client.db('jobsDB').collection('my jobs');
+
 
         // My Jobs data read
         app.get('/my_jobs', async (req, res) => {
@@ -115,6 +117,10 @@ async function run() {
             res.send(result);
         })
 
+
+        const applyCollection = client.db('jobDB').collection('apply');
+
+
         // Apply data read
         app.get('/apply', async (req, res) => {
             const cursor = applyCollection.find();
@@ -122,11 +128,9 @@ async function run() {
             res.send(result);
         })
 
-
         // Apply data create
         app.post('/apply', async (req, res) => {
             const newApply = req.body;
-            console.log(newApply);
             const result = await applyCollection.insertOne(newApply);
             res.send(result);
         })
